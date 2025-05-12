@@ -51,7 +51,11 @@ def gerar_docx_laboratorial(nome, data, dados):
         if itens:
             doc.add_heading(secao, level=1)
             for item in itens:
-                doc.add_paragraph(item, style="List Bullet")
+                try:
+                    texto_limpo = item.encode("utf-8", "ignore").decode("utf-8", "ignore")
+                    doc.add_paragraph(texto_limpo, style="List Bullet")
+                except Exception:
+                    doc.add_paragraph("**Erro ao processar item**", style="List Bullet")
     output = BytesIO()
     doc.save(output)
     return output.getvalue()
