@@ -43,19 +43,28 @@ def classificar_exames(texto):
             dados["Outros"].append(l.capitalize())
     return dados
 
+import re
+
+def limpar_texto(texto):
+    # Remove caracteres inválidos para o Word (não imprimíveis)
+    texto = texto.encode("utf-8", "ignore").decode("utf-8", "ignore")
+    texto = re.sub(r'[^\x20-\x7EÀ-ÿ:\.,\-/()\[\] ]+', '', texto)  # apenas texto válido + acentos e pontuação básica
+    return texto.strip()
+
 def gerar_docx_laboratorial(nome, data, dados):
     doc = Document()
-    doc.add_heading(f"Exame Laboratorial – {nome}", 0)
+    doc.add_heading(f"Exame Laboratorial", 0)
+    doc.add_paragraph(f"Paciente: {nome}")
     doc.add_paragraph(f"Data da coleta: {data}")
+    doc.add_paragraph("")
+
     for secao, itens in dados.items():
         if itens:
             doc.add_heading(secao, level=1)
             for item in itens:
-                try:
-                    texto_limpo = item.encode("utf-8", "ignore").decode("utf-8", "ignore")
+                texto_limpo = limpar_texto(item)
+                if texto_limpo:
                     doc.add_paragraph(texto_limpo, style="List Bullet")
-                except Exception:
-                    doc.add_paragraph("**Erro ao processar item**", style="List Bullet")
     output = BytesIO()
     doc.save(output)
     return output.getvalue()
