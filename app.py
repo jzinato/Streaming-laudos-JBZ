@@ -4,11 +4,14 @@ from supabase import create_client, Client
 from datetime import datetime
 from docx import Document
 from io import BytesIO
+import re
 
+# Supabase config
 SUPABASE_URL = "https://syrznbowqhvooxwzikhf.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cnpuYm93cWh2b294d3ppa2hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNjEzMDUsImV4cCI6MjA2MjYzNzMwNX0.IqeOV-3hynzr2mSN9quFlfkBEaqTKF6LwpL6IlmqYoU"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Tabela de seções clínicas
 secoes_lab = {
     "Bioquímica": ["glicose", "uréia", "creatinina", "potássio", "sódio", "cálcio", "fósforo"],
     "Hematologia": ["hemoglobina", "hematócrito", "vcm", "hcm", "leucócitos", "plaquetas"],
@@ -43,9 +46,6 @@ def classificar_exames(texto):
             dados["Outros"].append(l.capitalize())
     return dados
 
-import re
-
-# ... mantenha o restante do código
 def limpar_texto(texto):
     texto = texto.encode("utf-8", "ignore").decode("utf-8", "ignore")
     texto = re.sub(r'[^\x20-\x7EÀ-ÿ:\.,\-/()\[\] ]+', '', texto)
@@ -70,15 +70,19 @@ def gerar_docx_laboratorial(nome, data, dados):
 
 def gerar_docx_imagem(nome, data, texto):
     doc = Document()
-    doc.add_heading(f"Laudo de Imagem – {nome}", 0)
+    doc.add_heading(f"Laudo de Imagem", 0)
+    doc.add_paragraph(f"Paciente: {nome}")
     doc.add_paragraph(f"Data do exame: {data}")
+    doc.add_paragraph("")
     for linha in texto.splitlines():
-        if linha.strip():
-            doc.add_paragraph(linha.strip())
+        texto_limpo = limpar_texto(linha)
+        if texto_limpo:
+            doc.add_paragraph(texto_limpo)
     output = BytesIO()
     doc.save(output)
     return output.getvalue()
 
+# Interface
 st.title("Aplicativo de Laudos – Dr. João Batista Zinato")
 
 with st.form("formulario"):
