@@ -45,10 +45,10 @@ def classificar_exames(texto):
 
 import re
 
+# ... mantenha o restante do código
 def limpar_texto(texto):
-    # Remove caracteres inválidos para o Word (não imprimíveis)
     texto = texto.encode("utf-8", "ignore").decode("utf-8", "ignore")
-    texto = re.sub(r'[^\x20-\x7EÀ-ÿ:\.,\-/()\[\] ]+', '', texto)  # apenas texto válido + acentos e pontuação básica
+    texto = re.sub(r'[^\x20-\x7EÀ-ÿ:\.,\-/()\[\] ]+', '', texto)
     return texto.strip()
 
 def gerar_docx_laboratorial(nome, data, dados):
@@ -57,7 +57,6 @@ def gerar_docx_laboratorial(nome, data, dados):
     doc.add_paragraph(f"Paciente: {nome}")
     doc.add_paragraph(f"Data da coleta: {data}")
     doc.add_paragraph("")
-
     for secao, itens in dados.items():
         if itens:
             doc.add_heading(secao, level=1)
